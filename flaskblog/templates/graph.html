@@ -1,0 +1,38 @@
+{% extends "layout_no_sidebar.html" %}
+
+{% block content %}
+<div class="content-section">
+    <div id="filters" style="position: absolute; top: 10px; left: 10px; background: white; padding: 10px; border-radius: 5px;">
+        <label><input type="checkbox" id="filter-mutual" checked> Mutual Friends</label>
+        <label><input type="checkbox" id="filter-interest" checked> Shared Interests</label>
+        <label><input type="checkbox" id="filter-both" checked> Both</label>
+    </div>
+    <div id="graph-container" style="width: 100vw; height: 100vh;"></div>
+</div>
+{% endblock content %}
+
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .content-section {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    .tooltip {
+        position: absolute;
+        text-align: center;
+        width: 60px;
+        height: 28px;
+        padding: 2px;
+        font: 12px sans-serif;
+        background: lightsteelblue;
+        border: 0px;
+        border-radius: 8px;
+        pointer-events: none;
+    }
+</style>

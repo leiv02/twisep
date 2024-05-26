@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <div class="media">
+        <img class="rounded-circle account-img" src="{{ url_for('static', filename='profile_pics/' + user.image_file) }}" alt="Profile Picture">
+        <div class="media-body">
+            <h2 class="account-heading">{{ user.username }}</h2>
+            <p class="text-secondary">{{ user.email }}</p>
+            <p class="text-muted">{{ user.biography }}</p>
+        </div>
+    </div>
+    
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {% if user != current_user %}
+            {% if user in current_user.friends %}
+                <button type="submit" name="action" value="remove" class="btn btn-danger">Unfollow</button>
+            {% else %}
+                <button type="submit" name="action" value="add" class="btn btn-primary">Follow</button>
+            {% endif %}
+        {% endif %}
+    </form>
+
+    <h3 class="mt-4">Interests</h3>
+    {% if interests %}
+        <ul class="list-group">
+            {% for interest in interests %}
+                <li class="list-group-item">{{ interest.name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No interests added yet.</p>
+    {% endif %}
+
+    <h3 class="mt-4">Posts</h3>
+    {% for post in posts %}
+        <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="#">{{ post.author.username }}</a>
+                    <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+                </div>
+                <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+                <p class="article-content">{{ post.content }}</p>
+            </div>
+        </article>
+    {% endfor %}
+
+    <h3 class="mt-4">Mutual Friends</h3>
+    {% if mutual_friends %}
+        <ul class="list-group">
+            {% for friend in mutual_friends %}
+                <li class="list-group-item">{{ friend.username }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No mutual friends.</p>
+    {% endif %}
+</div>
+{% endblock content %}

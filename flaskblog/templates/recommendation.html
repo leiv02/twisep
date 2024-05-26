@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section">
+    <h1>Recommendations</h1>
+    <ul class="list-group">
+        {% if recommendations %}
+            {% for item in recommendations %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{{ url_for('user_profile', username=item.user.username) }}">{{ item.user.username }}</a>
+                        <ul>
+                            {% for reason in item.reasons %}
+                                <li>{{ reason.reason }}: {{ reason.details | join(", ") }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <form method="POST" action="{{ url_for('add_friend_from_recommendations', user_id=item.user.id) }}">
+                        <button type="submit" class="btn btn-primary btn-sm">Add Friend</button>
+                    </form>
+                </li>
+            {% endfor %}
+        {% else %}
+            <li class="list-group-item">No recommendations available.</li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock content %}

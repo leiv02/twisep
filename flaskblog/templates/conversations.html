@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <h2>Conversations</h2>
+    <ul class="list-group">
+        {% for conversation in conversations %}
+        <li class="list-group-item">
+            <a href="{{ url_for('conversation', conversation_id=conversation.id) }}">
+                Conversation with {{ conversation.user1.username if conversation.user1 != current_user else conversation.user2.username }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>New Conversation</h3>
+            <form method="POST" action="{{ url_for('conversations') }}">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="friend_select">Select Friend</label>
+                    {{ form.receiver_id(class="form-control") }}
+                </div>
+                <div class="form-group">
+                    {{ form.content.label(class="form-control-label") }}
+                    {{ form.content(class="form-control") }}
+                    {% for error in form.content.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

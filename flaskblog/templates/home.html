@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="content-section">
+    <h1>Home</h1>
+    <form method="POST" action="{{ url_for('home') }}">
+        <div class="form-group">
+            <input type="checkbox" name="filter_friends" id="filter_friends" {% if request.form.get('filter_friends') %}checked{% endif %}>
+            <label for="filter_friends">Show only friends' posts</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
+    </form>
+    <hr>
+    {% for post in posts.items %}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{{ url_for('user_profile', username=post.author.username) }}">{{ post.author.username }}</a>
+                <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content }}</p>
+            <button class="btn btn-primary like-btn" data-post-id="{{ post.id }}">Like</button>
+            <span id="like-count-{{ post.id }}">{{ post.likes|length }}</span>
+            
+            <div id="comments-{{ post.id }}" class="comments-section">
+                {% for comment in post.comments %}
+                <div class="media comment-section">
+                    <div class="media-body">
+                        <div class="comment-metadata">
+                            <a class="mr-2" href="{{ url_for('user_profile', username=comment.author.username) }}">{{ comment.author.username }}</a>
+                            <small class="text-muted">{{ comment.date_posted.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <p class="comment-content">{{ comment.content }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+                    {{ comment_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ comment_form.content(class="form-control", placeholder="Add a comment...") }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Comment</button>
+                </form>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% if posts.has_prev %}
+        <a href="{{ url_for('home', page=posts.prev_num) }}">&laquo; Previous</a>
+    {% endif %}
+    {% if posts.has_next %}
+        <a href="{{ url_for('home', page=posts.next_num) }}">Next &raquo;</a>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <h2>Conversation with {{ conversation.user1.username if conversation.user1.id != current_user.id else conversation.user2.username }}</h2>
+    <ul class="list-group mb-3">
+        {% for message in messages %}
+        <li class="list-group-item">
+            <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+            <br><small class="text-muted">{{ message.date_sent.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+        </li>
+        {% endfor %}
+    </ul>
+    <form method="POST" action="{{ url_for('conversation', conversation_id=conversation.id) }}">
+        {{ form.hidden_tag() }}
+        <input type="hidden" name="receiver_id" value="{{ conversation.user1.id if conversation.user1.id != current_user.id else conversation.user2.id }}">
+        <div class="form-group">
+            {{ form.content.label(class="form-control-label") }}
+            {{ form.content(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

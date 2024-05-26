@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <h2>Messages</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Received Messages</h3>
+            <ul class="list-group">
+                {% for message in received_messages %}
+                <li class="list-group-item">
+                    <strong>From: </strong>{{ message.sender.username }}<br>
+                    <strong>Date: </strong>{{ message.date_sent.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                    <strong>Content: </strong>{{ message.content }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h3>Sent Messages</h3>
+            <ul class="list-group">
+                {% for message in sent_messages %}
+                <li class="list-group-item">
+                    <strong>To: </strong>{{ message.receiver.username }}<br>
+                    <strong>Date: </strong>{{ message.date_sent.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                    <strong>Content: </strong>{{ message.content }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="content-section mt-4">
+    <h2>Send a New Message</h2>
+    <form method="POST" action="{{ url_for('new_message') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.receiver_username.label(class="form-control-label") }}
+            {% if form.receiver_username.errors %}
+                {{ form.receiver_username(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.receiver_username.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.receiver_username(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.content.label(class="form-control-label") }}
+            {% if form.content.errors %}
+                {{ form.content(class="form-control is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.content.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.content(class="form-control") }}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}

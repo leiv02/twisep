@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Search Users</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.username.label() }}
+        {{ form.username(class="form-control") }}
+        {{ form.submit(class="btn btn-primary mt-2") }}
+    </form>
+    {% if users %}
+        <ul class="list-group mt-4">
+            {% for user in users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('user_profile', username=user.username) }}">{{ user.username }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
+{% endblock content %}
