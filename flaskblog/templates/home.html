@@ -4,6 +4,7 @@
 <div class="content-section">
     <h1>Home</h1>
     <form method="POST" action="{{ url_for('home') }}">
+        {{ form.hidden_tag() }}
         <div class="form-group">
             <input type="checkbox" name="filter_friends" id="filter_friends" {% if request.form.get('filter_friends') %}checked{% endif %}>
             <label for="filter_friends">Show only friends' posts</label>

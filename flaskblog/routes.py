@@ -8,6 +8,7 @@ from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm, Post
 from flaskblog.models import User, Post, Message, Notification, Friendship, Interest, Conversation, Comment , Like
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_wtf.csrf import generate_csrf
+from datetime import datetime , timedelta
 
 @app.context_processor
 def inject_search_form():
@@ -444,6 +445,9 @@ def conversation(conversation_id):
 def get_recommendations(user_id):
     user = User.query.get(user_id)
     
+    # Define time windows for recent activity
+    recent_period = datetime.utcnow() - timedelta(days=30)
+    
     # Get the current user's friends
     friends = {friendship.friend_id for friendship in Friendship.query.filter_by(user_id=user.id).all()}
     friend_dict = {friend.id: friend.username for friend in User.query.filter(User.id.in_(friends)).all()}
@@ -479,8 +483,23 @@ def get_recommendations(user_id):
     
     print(f"Interest candidates for user {user.id}: {interest_candidates}")
     
+    # Find active users
+    active_users = {post.user_id for post in Post.query.filter(Post.date_posted >= recent_period).all()}
+    active_users.update({like.user_id for like in Like.query.filter(Like.date_liked >= recent_period).all()})
+    active_users.update({comment.user_id for comment in Comment.query.filter(Comment.date_posted >= recent_period).all()})
+    
+    print(f"Active users in the last 30 days: {active_users}")
+    
+    # Find users with interaction history
+    interaction_history_users = {message.receiver_id for message in Message.query.filter_by(sender_id=user.id).all()}
+    interaction_history_users.update({message.sender_id for message in Message.query.filter_by(receiver_id=user.id).all()})
+    
+    print(f"Users with interaction history: {interaction_history_users}")
+    
     # Combine both sets of candidates
     recommendation_candidates = set(mutual_friend_candidates.keys()) | set(interest_candidates.keys())
+    
+    # Adjust candidate scores based on activity and interaction history
     recommendations = []
     for candidate_id in recommendation_candidates:
         reasons = []
@@ -489,12 +508,21 @@ def get_recommendations(user_id):
             reasons.append({'reason': 'Mutual Friends', 'details': mutual_friends_usernames})
         if candidate_id in interest_candidates:
             reasons.append(interest_candidates[candidate_id])
-        recommendations.append({'user': User.query.get(candidate_id), 'reasons': reasons})
+        
+        # Add bonus points for activity and interaction history
+        score = len(reasons)
+        if candidate_id in active_users:
+            score += 1
+        if candidate_id in interaction_history_users:
+            score += 1
+        
+        recommendations.append({'user': User.query.get(candidate_id), 'reasons': reasons, 'score': score})
+    
+    # Sort recommendations by score in descending order
+    recommendations.sort(key=lambda x: x['score'], reverse=True)
     
     print(f"Recommendation candidates for user {user.id}: {recommendations}")
     return recommendations
-
-
 
 @app.route("/recommendations", methods=['GET'])
 @login_required
